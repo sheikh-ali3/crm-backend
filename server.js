@@ -2363,3 +2363,8 @@ app.use((req, res) => {
   console.log('UNMATCHED APP ROUTE:', req.originalUrl);
   res.status(404).json({ message: 'Not found', path: req.originalUrl });
 });
+
+// Add a root route for Railway health check and success message
+app.get('/', (req, res) => {
+  res.send(`✅ Backend deployed successfully on Railway!\nAPI is running. 🚀`);
+});
