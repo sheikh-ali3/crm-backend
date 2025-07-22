@@ -2339,11 +2339,18 @@ app.delete('/superadmin/customers/:id', authenticateToken, authorizeRole('supera
   }
 });
 
+// ... existing code ...
+// Add a root route for Railway health check and success message
+app.get('/', (req, res) => {
+  res.send(`✅ Backend deployed successfully on Railway!\nAPI is running. 🚀`);
+});
+
 // Serve React frontend static files in production
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
+// ... existing code ...
 
 // Start the server
 const PORT = process.env.PORT || 5000;
@@ -2362,9 +2369,4 @@ console.log('restarted the server after changes');
 app.use((req, res) => {
   console.log('UNMATCHED APP ROUTE:', req.originalUrl);
   res.status(404).json({ message: 'Not found', path: req.originalUrl });
-});
-
-// Add a root route for Railway health check and success message
-app.get('/', (req, res) => {
-  res.send(`✅ Backend deployed successfully on Railway!\nAPI is running. 🚀`);
 });
