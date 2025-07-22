@@ -2348,7 +2348,12 @@ app.get('*', (req, res) => {
 // Start the server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`\u2705 Server is running on port ${PORT}`);
+  console.log('========================================');
+  console.log('  🚀 Backend deployed successfully on Railway!');
+  console.log('  Access your API at:');
+  console.log(`  https://<your-railway-subdomain>.railway.app/`);
+  console.log('========================================');
 });
 
 // testing changes
