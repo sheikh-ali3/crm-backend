@@ -2216,3 +2216,12 @@ app.use((req, res) => {
   console.log('UNMATCHED APP ROUTE:', req.originalUrl);
   res.status(404).json({ message: 'Not found', path: req.originalUrl });
 });
+
+// ... existing code ...
+// Print all registered routes for debugging
+app._router.stack.forEach(function(r){
+  if (r.route && r.route.path){
+    console.log('ROUTE:', r.route.path);
+  }
+});
+// ... existing code ...
