@@ -2225,3 +2225,27 @@ app._router.stack.forEach(function(r){
   }
 });
 // ... existing code ...
+
+// ... existing code ...
+// Print all registered routes, including those from routers
+function printRoutes(app) {
+  function print(path, layer) {
+    if (layer.route) {
+      // Routes registered directly on the app
+      layer.route.stack.forEach(function(routeLayer) {
+        console.log('ROUTE:', path + (path && layer.route.path !== '/' ? layer.route.path : ''));
+      });
+    } else if (layer.name === 'router' && layer.handle.stack) {
+      // Router middleware
+      layer.handle.stack.forEach(function(routerLayer) {
+        print(path + (layer.regexp && layer.regexp.source !== '^\\/' ? layer.regexp.source.replace('^\\', '').replace('\\/?(?=\\/|$)', '') : ''), routerLayer);
+      });
+    }
+  }
+  app._router.stack.forEach(function(layer) {
+    print('', layer);
+  });
+}
+
+printRoutes(app);
+// ... existing code ...
