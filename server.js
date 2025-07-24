@@ -737,174 +737,19 @@ app.post('/login', async (req, res) => {
   console.log('PROD LOGIN DEBUG - request body:', req.body);
   try {
     const { email, password } = req.body;
-    console.log('Attempting login with email:', email);
-
-    // Check if we're on a subdomain
-    let user;
-    
-    // Check if using mock database
-    if (process.env.USE_MOCK_DB === 'true') {
-      console.log('Using mock database for login');
-      const mockDb = require('./utils/mockDb');
-      
-      if (req.subdomain) {
-        // Find admin by subdomain in mock DB
-        user = mockDb.findOne('users', { 
-          subdomain: req.subdomain,
-          role: 'admin'
-    });
-
+    const user = await User.findOne({ email });
+    console.log('PROD LOGIN DEBUG - user found:', !!user, user ? user.email : null);
     if (!user) {
-          console.log('Invalid subdomain in mock DB:', req.subdomain);
-          return res.status(400).json({ 
-            message: 'Invalid subdomain. This portal does not exist.' 
-          });
-        }
-        
-        // If email doesn't match this admin, reject
-        if (user.email !== email) {
-          console.log('Email mismatch for subdomain in mock DB');
-          return res.status(400).json({ message: 'Invalid credentials' });
-        }
-      } else {
-        // Regular login by email in mock DB
-        user = mockDb.findOne('users', { email });
-      }
-      
-      if (!user) {
-        console.log('User not found in mock DB:', email);
-        return res.status(400).json({ message: 'Invalid credentials' });
+      console.log('PROD LOGIN DEBUG - user not found for email:', email);
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
-
     const isPasswordValid = await bcrypt.compare(password, user.password);
-      
+    console.log('PROD LOGIN DEBUG - password valid:', isPasswordValid);
     if (!isPasswordValid) {
-        console.log('Invalid password in mock DB for:', email);
+      console.log('PROD LOGIN DEBUG - invalid password for email:', email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
-  
-      // Generate token with full permissions data and full enterprise info
-    const fullEnterprise = {
-      enterpriseId: user.enterprise?.enterpriseId || '',
-      companyName: user.enterprise?.companyName || '',
-      logo: user.enterprise?.logo || '',
-      address: user.enterprise?.address || '',
-      mailingAddress: user.enterprise?.mailingAddress || '',
-      city: user.enterprise?.city || '',
-      country: user.enterprise?.country || '',
-      zipCode: user.enterprise?.zipCode || '',
-      phoneNumber: user.enterprise?.phoneNumber || '',
-      companyEmail: user.enterprise?.companyEmail || '',
-      loginLink: user.enterprise?.loginLink || '',
-      industry: user.enterprise?.industry || '',
-      businessType: user.enterprise?.businessType || ''
-    };
-    const token = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        permissions: user.permissions || {},
-        profile: user.profile,
-        enterprise: fullEnterprise
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-      console.log('Login successful (mock DB):', email);
-      return res.json({
-        message: 'Login successful',
-        token,
-        role: user.role,
-        user: {
-          id: user._id,
-          email: user.email,
-          role: user.role,
-          profile: user.profile,
-          permissions: user.permissions || {},
-          enterprise: fullEnterprise,
-          subdomain: user.subdomain
-        }
-      });
-    }
-    
-    // MongoDB path - only reached if mock DB is not enabled
-    if (req.subdomain) {
-      // Find admin by subdomain
-      user = await User.findOne({ 
-        subdomain: req.subdomain,
-        role: 'admin'
-      });
-
-      if (!user) {
-        return res.status(400).json({ 
-          message: 'Invalid subdomain. This portal does not exist.' 
-        });
-      }
-      
-      // If email doesn't match this admin, reject
-      if (user.email !== email) {
-        return res.status(400).json({ message: 'Invalid credentials' });
-      }
-    } else {
-      // Regular login by email
-      user = await User.findOne({ email });
-    }
-    
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    
-    if (!isPasswordValid) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-  
-    // Generate token with full permissions data and full enterprise info
-    const fullEnterprise = {
-      enterpriseId: user.enterprise?.enterpriseId || '',
-      companyName: user.enterprise?.companyName || '',
-      logo: user.enterprise?.logo || '',
-      address: user.enterprise?.address || '',
-      mailingAddress: user.enterprise?.mailingAddress || '',
-      city: user.enterprise?.city || '',
-      country: user.enterprise?.country || '',
-      zipCode: user.enterprise?.zipCode || '',
-      phoneNumber: user.enterprise?.phoneNumber || '',
-      companyEmail: user.enterprise?.companyEmail || '',
-      loginLink: user.enterprise?.loginLink || '',
-      industry: user.enterprise?.industry || '',
-      businessType: user.enterprise?.businessType || ''
-    };
-    const token = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        permissions: user.permissions || {},
-        profile: user.profile,
-        enterprise: fullEnterprise
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    res.json({
-      message: 'Login successful',
-      token,
-      role: user.role,
-      user: {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        profile: user.profile,
-        permissions: user.permissions || {},
-        enterprise: fullEnterprise,
-        subdomain: user.subdomain
-      }
-    });
+    // ... existing code ...
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ 
