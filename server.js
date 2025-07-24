@@ -734,6 +734,7 @@ app.post('/superadmin/login', async (req, res) => {
 
 // Regular Login Route (for Admin and Users)
 app.post('/login', async (req, res) => {
+  console.log('PROD LOGIN DEBUG - request body:', req.body);
   try {
     const { email, password } = req.body;
     console.log('Attempting login with email:', email);
