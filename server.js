@@ -749,6 +749,7 @@ app.post('/login', async (req, res) => {
       console.log('PROD LOGIN DEBUG - invalid password for email:', email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
+    console.log('PROD LOGIN DEBUG - sending success response for:', email);
     // ... existing code ...
   } catch (error) {
     console.error('Login error:', error);
